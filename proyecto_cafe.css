@@ -130,8 +130,8 @@ a:hover {
 }
 
 .icons-row img {
-  width: 120px;
-  height: 120px;
+  width: 100px;
+  height: 100px;
   object-fit: contain;
 }
 
@@ -1168,6 +1168,20 @@ body.modal-abierto {
 
   .form-group {
     flex: 1 1 100%;
+  }
+
+  /* Los iconos del hero se achican para caber dentro de la tarjeta */
+  .icons-row {
+    gap: 10px;
+  }
+
+  .icons-row img {
+    flex: 1 1 0;
+    min-width: 0;
+    max-width: 100px;
+    width: auto;
+    height: auto;
+    aspect-ratio: 1 / 1;
   }
 
   /* ... el resto de tus estilos de la media query (< 600px) se mantienen igual ... */
