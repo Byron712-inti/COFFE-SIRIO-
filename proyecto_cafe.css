@@ -893,6 +893,179 @@ body.modal-abierto {
   color: #e39b9b;
 }
 
+/* --- Mejoras de modal, totales y panel de pedidos --- */
+.modal-overlay {
+  background: rgba(9, 4, 3, 0.75);
+  backdrop-filter: blur(4px);
+}
+
+.modal-box {
+  border: 1px solid rgba(235, 215, 197, 0.25);
+  border-radius: 16px;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.55);
+}
+
+.modal-producto {
+  border-bottom: 1px solid rgba(235, 215, 197, 0.2);
+}
+
+.modal-titulo {
+  font-size: 22px;
+  margin-bottom: 20px;
+  color: #ffffff;
+}
+
+.form-group[hidden] {
+  display: none;
+}
+
+.pedido-resumen {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 15px;
+  padding: 16px 18px;
+  margin-bottom: 22px;
+  background: rgba(235, 215, 197, 0.07);
+  border: 1px solid rgba(235, 215, 197, 0.2);
+  border-radius: 10px;
+}
+
+.pedido-resumen span {
+  display: block;
+  font-size: 14px;
+  color: #ebd7c5;
+}
+
+.pedido-resumen small {
+  display: block;
+  margin-top: 3px;
+  font-size: 12px;
+  color: rgba(235, 215, 197, 0.6);
+}
+
+.pedido-resumen strong {
+  font: italic bold 24px Georgia, serif;
+  color: #ffffff;
+}
+
+.pedidos-box {
+  max-width: 520px;
+}
+
+.pedidos-lista {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.pedido-item {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 12px;
+  background: rgba(235, 215, 197, 0.05);
+  border-radius: 10px;
+}
+
+.pedido-item img {
+  width: 54px;
+  height: 54px;
+  object-fit: cover;
+  border-radius: 8px;
+  flex-shrink: 0;
+}
+
+.pedido-item-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.pedido-item-info strong {
+  display: block;
+  font-size: 15px;
+}
+
+.pedido-item-info small {
+  font-size: 12px;
+  color: rgba(235, 215, 197, 0.65);
+}
+
+.pedido-item-total {
+  font-weight: bold;
+  color: #ffffff;
+}
+
+.pedido-item-quitar {
+  background: none;
+  border: none;
+  color: #ebd7c5;
+  font-size: 22px;
+  line-height: 1;
+  cursor: pointer;
+  transition: color 0.3s;
+}
+
+.pedido-item-quitar:hover {
+  color: #e39b9b;
+}
+
+.pedidos-vacio {
+  text-align: center;
+  color: rgba(235, 215, 197, 0.6);
+  margin-bottom: 20px;
+}
+
+.pedidos-vacio[hidden] {
+  display: none;
+}
+
+.resumen-general {
+  margin-bottom: 0;
+}
+
+.pedidos-fab {
+  position: fixed;
+  right: 22px;
+  bottom: 22px;
+  z-index: 1500;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 20px;
+  background: #6d4e4d;
+  color: #ffffff;
+  border: 1px solid rgba(235, 215, 197, 0.4);
+  border-radius: 50px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.45);
+  font-size: 14px;
+  cursor: pointer;
+  transition: background-color 0.3s, color 0.3s;
+}
+
+.pedidos-fab[hidden] {
+  display: none;
+}
+
+.pedidos-fab:hover {
+  background: #ffffff;
+  color: #120907;
+}
+
+.pedidos-fab-count {
+  min-width: 22px;
+  padding: 2px 7px;
+  border-radius: 50px;
+  background: #ebd7c5;
+  color: #120907;
+  font-size: 12px;
+  font-weight: bold;
+  text-align: center;
+}
+
 /* ==========================================================================
    6. SISTEMA RESPONSIVE INTEGRAL (Media Queries Máximas)
    ========================================================================== */
