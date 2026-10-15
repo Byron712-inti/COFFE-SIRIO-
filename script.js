@@ -156,8 +156,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
   // ------------------------------------------------------------------------
-  // 4. MODAL DE PEDIDO (Proyecto_cafe.html) — un formulario por producto,
-  //    reutilizando la misma ventana interna para cada "comprar"
+  // 4. MODAL DE PEDIDO + TOTALES (por pedido y general)
   // ------------------------------------------------------------------------
   const overlay = document.getElementById('modal-overlay');
   const form = document.getElementById('pedido-form');
@@ -169,12 +168,34 @@ document.addEventListener("DOMContentLoaded", () => {
     const modalPrecio = document.getElementById('modal-producto-precio');
     const mensaje = document.getElementById('pedido-mensaje');
 
+    const inputTelefono = document.getElementById('telefono');
+    const inputCantidad = document.getElementById('cantidad');
+    const selectEntrega = document.getElementById('entrega');
+    const grupoDireccion = document.getElementById('grupo-direccion');
+    const totalPedido = document.getElementById('pedido-total');
+    const detalleTotal = document.getElementById('pedido-detalle-total');
+
+    // Panel "Mis pedidos"
+    const fab = document.getElementById('pedidos-fab');
+    const fabTotal = document.getElementById('pedidos-fab-total');
+    const fabCount = document.getElementById('pedidos-count');
+    const panelOverlay = document.getElementById('pedidos-overlay');
+    const panelClose = document.getElementById('pedidos-close');
+    const lista = document.getElementById('pedidos-lista');
+    const vacio = document.getElementById('pedidos-vacio');
+    const totalGeneral = document.getElementById('pedidos-total-general');
+
     let productoActual = null;
+    let pedidos = [];
+    let siguienteId = 1;
+
+    const valorPrecio = (p) => parseFloat(String(p.precio).replace('$', ''));
+    const dinero = (n) => `$${n.toFixed(2)}`;
 
     const validadores = {
       nombre: (v) => v.trim().length >= 3 ? '' : 'Escribe tu nombre completo.',
       correo: (v) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v.trim()) ? '' : 'Escribe un correo válido.',
-      telefono: (v) => /^[0-9\-\s()+]{7,}$/.test(v.trim()) ? '' : 'Escribe un teléfono válido.',
+      telefono: (v) => /^[0-9]{8}$/.test(v.trim()) ? '' : 'Escribe un teléfono de 8 dígitos.',
       cantidad: (v) => (v && Number(v) >= 1) ? '' : 'La cantidad debe ser al menos 1.',
       entrega: (v) => v ? '' : 'Selecciona el tipo de entrega.',
       direccion: (v, data) => (data.entrega === 'domicilio' && v.trim().length < 5)
@@ -192,6 +213,74 @@ document.addEventListener("DOMContentLoaded", () => {
       Object.keys(validadores).forEach(campo => mostrarError(campo, ''));
     }
 
+    // --- Total del pedido en el formulario (precio x cantidad) ---
+    function actualizarTotalPedido() {
+      if (!productoActual) return;
+      const cantidad = Math.max(parseInt(inputCantidad.value, 10) || 0, 0);
+      const total = valorPrecio(productoActual) * cantidad;
+      totalPedido.textContent = dinero(total);
+      detalleTotal.textContent = `${cantidad} × ${productoActual.precio}`;
+    }
+
+    function actualizarDireccion() {
+      const domicilio = selectEntrega.value === 'domicilio';
+      grupoDireccion.hidden = !domicilio;
+      if (!domicilio) mostrarError('direccion', '');
+    }
+
+    // --- Lista de pedidos y total general ---
+    function renderPedidos() {
+      lista.innerHTML = '';
+      pedidos.forEach(p => {
+        const li = document.createElement('li');
+        li.className = 'pedido-item';
+
+        const img = document.createElement('img');
+        img.src = p.producto.img;
+        img.alt = p.producto.nombre;
+
+        const info = document.createElement('div');
+        info.className = 'pedido-item-info';
+        const nombre = document.createElement('strong');
+        nombre.textContent = p.producto.nombre;
+        const detalle = document.createElement('small');
+        detalle.textContent = `${p.cantidad} × ${p.producto.precio} · ${p.entrega === 'domicilio' ? 'Domicilio' : 'Recoger en local'}`;
+        info.append(nombre, detalle);
+
+        const subtotal = document.createElement('span');
+        subtotal.className = 'pedido-item-total';
+        subtotal.textContent = dinero(p.total);
+
+        const quitar = document.createElement('button');
+        quitar.type = 'button';
+        quitar.className = 'pedido-item-quitar';
+        quitar.dataset.quitar = p.id;
+        quitar.setAttribute('aria-label', `Quitar ${p.producto.nombre}`);
+        quitar.innerHTML = '&times;';
+
+        li.append(img, info, subtotal, quitar);
+        lista.appendChild(li);
+      });
+
+      const suma = pedidos.reduce((acc, p) => acc + p.total, 0);
+      const unidades = pedidos.reduce((acc, p) => acc + p.cantidad, 0);
+      totalGeneral.textContent = dinero(suma);
+      fabTotal.textContent = dinero(suma);
+      fabCount.textContent = unidades;
+      vacio.hidden = pedidos.length > 0;
+      fab.hidden = pedidos.length === 0;
+      if (pedidos.length === 0) cerrarPanel();
+    }
+
+    function abrirPanel() {
+      panelOverlay.classList.add('activo');
+      document.body.classList.add('modal-abierto');
+    }
+    function cerrarPanel() {
+      panelOverlay.classList.remove('activo');
+      if (!overlay.classList.contains('activo')) document.body.classList.remove('modal-abierto');
+    }
+
     function abrirModal(producto) {
       productoActual = producto;
       modalImg.src = producto.img;
@@ -203,6 +292,8 @@ document.addEventListener("DOMContentLoaded", () => {
       mensaje.textContent = '';
       mensaje.className = 'pedido-mensaje';
       limpiarErrores();
+      actualizarDireccion();
+      actualizarTotalPedido();
 
       overlay.classList.add('activo');
       document.body.classList.add('modal-abierto');
@@ -210,7 +301,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     function cerrarModal() {
       overlay.classList.remove('activo');
-      document.body.classList.remove('modal-abierto');
+      if (!panelOverlay.classList.contains('activo')) document.body.classList.remove('modal-abierto');
     }
 
     document.querySelectorAll('[data-buy]').forEach(btn => {
@@ -221,12 +312,29 @@ document.addEventListener("DOMContentLoaded", () => {
       });
     });
 
-    closeBtn.addEventListener('click', cerrarModal);
-    overlay.addEventListener('click', (e) => {
-      if (e.target === overlay) cerrarModal();
+    inputCantidad.addEventListener('input', actualizarTotalPedido);
+    selectEntrega.addEventListener('change', actualizarDireccion);
+    inputTelefono.addEventListener('input', () => {
+      inputTelefono.value = inputTelefono.value.replace(/[^0-9]/g, '').slice(0, 8);
     });
+
+    closeBtn.addEventListener('click', cerrarModal);
+    overlay.addEventListener('click', (e) => { if (e.target === overlay) cerrarModal(); });
+
+    fab.addEventListener('click', abrirPanel);
+    panelClose.addEventListener('click', cerrarPanel);
+    panelOverlay.addEventListener('click', (e) => { if (e.target === panelOverlay) cerrarPanel(); });
+    lista.addEventListener('click', (e) => {
+      const btn = e.target.closest('[data-quitar]');
+      if (!btn) return;
+      pedidos = pedidos.filter(p => p.id !== Number(btn.dataset.quitar));
+      renderPedidos();
+    });
+
     document.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape' && overlay.classList.contains('activo')) cerrarModal();
+      if (e.key !== 'Escape') return;
+      if (overlay.classList.contains('activo')) cerrarModal();
+      else if (panelOverlay.classList.contains('activo')) cerrarPanel();
     });
 
     form.addEventListener('submit', (e) => {
@@ -249,11 +357,21 @@ document.addEventListener("DOMContentLoaded", () => {
         return;
       }
 
-      // Pedido validado correctamente: se muestra la confirmación sin abrir el correo.
-      mensaje.textContent = 'Pedido enviado correctamente.';
-      mensaje.classList.add('exito');
-      form.reset();
+      const cantidad = parseInt(data.cantidad, 10);
+      pedidos.push({
+        id: siguienteId++,
+        producto: productoActual,
+        cantidad,
+        entrega: data.entrega,
+        total: valorPrecio(productoActual) * cantidad
+      });
+
+      renderPedidos();
+      cerrarModal();
+      abrirPanel();
     });
+
+    renderPedidos();
   }
 
 });
