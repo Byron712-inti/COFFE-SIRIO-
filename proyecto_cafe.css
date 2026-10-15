@@ -132,7 +132,7 @@ a:hover {
 .icons-row img {
   width: 120px;
   height: 120px;
-  object-fit: 50px;
+  object-fit: contain;
 }
 
 hr {
